@@ -1,0 +1,86 @@
+<html>
+    <div id="container" class="container">
+        <span id="loading" class="loading" data-percent="0"></span>
+    </div>
+</html>
+
+<style type="text/css">   
+.container {
+    width: 1280px; height: 720px;
+    margin: auto;
+    background-color: #000;
+    position: relative;
+}
+.container > img {
+    position: absolute;
+    width: 100%; height: 100%;
+}
+.loading {
+    position: absolute;
+    height: 8px; width: 150px;
+    border: 1px solid #eee;
+    background: linear-gradient(to top, #eee, #eee);
+    background-size: 0 100%;
+    transition: background-size .1s;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: auto;
+}
+.loading::before {
+    content: attr(data-percent)'%';
+    position: absolute;
+    left: 0; top: -1.5em;
+    font-size: 12px;
+    color: #eee;
+}
+</style>
+<script lang="javascript">
+var urlRoot = './thumbs/';
+var indexRange = [1, 11];
+var maxLength = indexRange[1] - indexRange[0] + 1;
+// loading
+var eleContainer = document.getElementById('container');
+var eleLoading = document.getElementById('loading');
+// 存储预加载的DOM对象和长度信息
+var store = {
+    length: 0
+};
+// 图片序列预加载
+for ( var start = indexRange[0]; start <= indexRange[1]; start++) {
+    (function (index) {
+        var img = new Image();
+        img.onload = function () {
+            store.length++;
+            // 存储预加载的图片对象
+            store[index] = this;
+            play();
+        };
+        img.onerror = function () {
+            store.length++;
+            play();
+        };
+        img.src = urlRoot + index + '.png';
+    })(start);
+}
+
+var play = function () {
+
+    var percent = Math.round(100 * store.length / maxLength);
+    eleLoading.setAttribute('data-percent', percent);
+    eleLoading.style.backgroundSize = percent + '% 100%';    
+    if (percent == 100) {
+        var index = indexRange[0];
+        eleContainer.innerHTML = '';        
+        var step = function () {
+            if (store[index - 1]) {
+                eleContainer.removeChild(store[index - 1]);
+            }
+            eleContainer.appendChild(store[index]);
+            index++;
+            if (index > indexRange[1])
+                index = indexRange[0]
+            setTimeout(step, 42)
+        };
+       step()
+    }
+};
+</script>
