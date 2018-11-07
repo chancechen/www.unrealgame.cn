@@ -1,4 +1,8 @@
 <html>
+
+	<script lang="javascript" type="text/javascript" src="SmartPlayer.js">
+		LoadImages([1, 11],'./thumbs/')
+	</script>
     <div id="container" class="container">
         <span id="loading" class="loading" data-percent="0"></span>
     </div>
@@ -33,54 +37,3 @@
     color: #eee;
 }
 </style>
-<script lang="javascript">
-var urlRoot = './thumbs/';
-var indexRange = [1, 11];
-var maxLength = indexRange[1] - indexRange[0] + 1;
-// loading
-var eleContainer = document.getElementById('container');
-var eleLoading = document.getElementById('loading');
-// 存储预加载的DOM对象和长度信息
-var store = {
-    length: 0
-};
-// 图片序列预加载
-for ( var start = indexRange[0]; start <= indexRange[1]; start++) {
-    (function (index) {
-        var img = new Image();
-        img.onload = function () {
-            store.length++;
-            // 存储预加载的图片对象
-            store[index] = this;
-            play();
-        };
-        img.onerror = function () {
-            store.length++;
-            play();
-        };
-        img.src = urlRoot + index + '.png';
-    })(start);
-}
-
-var play = function () {
-
-    var percent = Math.round(100 * store.length / maxLength);
-    eleLoading.setAttribute('data-percent', percent);
-    eleLoading.style.backgroundSize = percent + '% 100%';    
-    if (percent == 100) {
-        var index = indexRange[0];
-        eleContainer.innerHTML = '';        
-        var step = function () {
-            if (store[index - 1]) {
-                eleContainer.removeChild(store[index - 1]);
-            }
-            eleContainer.appendChild(store[index]);
-            index++;
-            if (index > indexRange[1])
-                index = indexRange[0]
-            setTimeout(step, 42)
-        };
-       step()
-    }
-};
-</script>
